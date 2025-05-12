@@ -45,6 +45,10 @@ export const Route = createFileRoute("/$year/$month/$day/detections")({
   loader: async ({ params }) => {
     const { year, month, day } = params;
 
+    console.log(
+      `Loading from folder ${process.env.PERSON_FOLDER || "./"}/${year}/${month}/${day}`,
+    );
+
     const files = await fs.promises.readdir(
       path.join(process.env.PERSON_FOLDER || "./", year, month, day),
     );
