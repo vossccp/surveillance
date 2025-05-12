@@ -49,9 +49,11 @@ export const Route = createFileRoute("/$year/$month/$day/detections")({
       path.join(process.env.PERSON_FOLDER || "./", year, month, day),
     );
 
-    console.log("Loaded files:", files.length);
+    const result = files.map((file) => parseFilename(file));
 
-    return files.map((file) => parseFilename(file));
+    console.log(`Loaded ${result.length} files from ${year}/${month}/${day}`);
+
+    return result;
   },
 });
 
