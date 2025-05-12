@@ -46,7 +46,7 @@ export const Route = createFileRoute("/$year/$month/$day/detections")({
     const { year, month, day } = params;
 
     const files = await fs.promises.readdir(
-      path.join(folderPath, year, month, day),
+      path.join(process.env.PERSON_FOLDER || "./", year, month, day),
     );
 
     return files.map((file) => parseFilename(file));
@@ -57,7 +57,6 @@ function RouteComponent() {
   const imagefiles = Route.useLoaderData();
   const { year, month, day } = Route.useParams();
 
-  console.log(imagefiles);
   return (
     <div className={`flex flex-wrap gap-2`}>
       {imagefiles
