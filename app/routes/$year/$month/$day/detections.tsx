@@ -14,6 +14,8 @@ interface ParsedFilename {
 }
 
 function parseFilename(filename: string): ParsedFilename {
+  console.log("parsing filename", filename);
+
   // Regex breakdown:
   //   ^(.+?)       → capture cameraId (non-greedy up to first underscore)
   //   _(\d{2})     → underscore + two-digit id
@@ -49,9 +51,9 @@ export const Route = createFileRoute("/$year/$month/$day/detections")({
       path.join(process.env.PERSON_FOLDER || "./", year, month, day),
     );
 
-    const result = files.map((file) => parseFilename(file));
-
-    console.log(`Loaded ${result.length} files from ${year}/${month}/${day}`);
+    const result = files
+      .filter((file) => file.endsWith(".jpg"))
+      .map((file) => parseFilename(file));
 
     return result;
   },
@@ -63,22 +65,20 @@ function RouteComponent() {
 
   return (
     <div className={`flex flex-wrap gap-2`}>
-      {imagefiles
-        .filter((f) => f.filename.endsWith(".jpg"))
-        .map((file) => (
-          <Card key={file.filename} className="overflow-hidden">
-            <CardContent className="p-0 relative">
-              <img
-                src={`/api/${year}/${month}/${day}/images/${file.filename}`}
-                alt={file.filename}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute bottom-0 left-0 text-white p-2">
-                {file.timestamp.toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {imagefiles.map((file) => (
+        <Card key={file.filename} className="overflow-hidden">
+          <CardContent className="p-0 relative">
+            <img
+              src={`/api/${year}/${month}/${day}/images/${file.filename}`}
+              alt={file.filename}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-0 left-0 text-white p-2">
+              {file.timestamp.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
