@@ -40,6 +40,6 @@ jobs:
         run: |
           git -C vossccp.k8s config user.name "vossccp"
           git -C vossccp.k8s config user.email "carsten.voss@gmx.de"
-          sed -i "s|\(vossccp/poelse-tysker:\)[^ ]*|\1${{ github.sha }}|" vossccp.k8s/web/web.yaml
+          sed -i "s|\(vossccp/surveillance:\)[^ ]*|\1${{ github.sha }}|" vossccp.k8s/home/surveillance.yaml
           git -C vossccp.k8s commit -am "web: ${{ github.event.head_commit.message }}"
           git -C vossccp.k8s push origin master
