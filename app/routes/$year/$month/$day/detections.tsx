@@ -2,8 +2,7 @@ import * as fs from "node:fs";
 import { createFileRoute } from "@tanstack/react-router";
 import path from "node:path";
 import { Card, CardContent } from "@/components/ui/card";
-
-const folderPath = "./surveillance";
+import dayjs from "dayjs";
 
 interface ParsedFilename {
   cameraId: string;
@@ -14,13 +13,6 @@ interface ParsedFilename {
 }
 
 function parseFilename(filename: string): ParsedFilename {
-  console.log("parsing filename", filename);
-
-  // Regex breakdown:
-  //   ^(.+?)       → capture cameraId (non-greedy up to first underscore)
-  //   _(\d{2})     → underscore + two-digit id
-  //   _(\d{14})    → underscore + 14-digit timestamp (YYYYMMDDHHMMSS)
-  //   \.(\w+)$     → dot + extension (letters/numbers/underscores) at end
   const match = filename.match(/^(.+?)_(\d{2})_(\d{14})\.(\w+)$/);
   if (!match) {
     throw new Error(`Filename "${filename}" does not match expected pattern`);
@@ -29,15 +21,7 @@ function parseFilename(filename: string): ParsedFilename {
   const [, cameraId, idStr, tsStr, extension] = match;
   const id = parseInt(idStr, 10);
 
-  // Parse timestamp "YYYYMMDDHHMMSS"
-  const year = +tsStr.slice(0, 4);
-  const month = +tsStr.slice(4, 6) - 1; // JS months are 0-based
-  const day = +tsStr.slice(6, 8);
-  const hour = +tsStr.slice(8, 10);
-  const minute = +tsStr.slice(10, 12);
-  const second = +tsStr.slice(12, 14);
-
-  const timestamp = new Date(year, month, day, hour, minute, second);
+  const timestamp = dayjs.tz(tsStr, "YYYYMMDDHHmmss", "Europe/Berlin").toDate();
 
   return { cameraId, id, timestamp, extension, filename };
 }
