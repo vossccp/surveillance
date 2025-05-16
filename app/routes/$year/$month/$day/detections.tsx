@@ -1,7 +1,6 @@
 import * as fs from "node:fs";
 import { createFileRoute } from "@tanstack/react-router";
 import path from "node:path";
-import { Card, CardContent } from "@/components/ui/card";
 import dayjs from "dayjs";
 
 interface ParsedFilename {
@@ -48,20 +47,18 @@ function RouteComponent() {
   const { year, month, day } = Route.useParams();
 
   return (
-    <div className={`flex flex-wrap gap-2`}>
+    <div className={`flex flex-wrap gap-2 p-2`}>
       {imagefiles.map((file) => (
-        <Card key={file.filename} className="overflow-hidden">
-          <CardContent className="p-0 relative">
-            <img
-              src={`/api/${year}/${month}/${day}/images/${file.filename}`}
-              alt={file.filename}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute bottom-0 left-0 text-white p-2">
-              {file.timestamp.toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
+        <div key={file.filename} className="relative w-1/1 h-1/1">
+          <img
+            src={`/api/${year}/${month}/${day}/images/${file.filename}`}
+            alt={file.filename}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute bottom-0 left-0 text-white p-2">
+            {dayjs(file.timestamp).format("DD.MM, HH:mm:ss")}
+          </div>
+        </div>
       ))}
     </div>
   );
