@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -15,19 +15,23 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const navigate = useNavigate();
 
-  async function handleClick() {
-    navigate({
-      to: `${dayjs(date).format("YYYY/MM/DD")}/detections`,
-    });
-  }
+  const targetHref = `/${dayjs(date).format("YYYY/MM/DD")}/detections`;
 
   return (
-    <div>
-      <Calendar mode="single" selected={date} onSelect={setDate} />
-      <Button type="button" onClick={handleClick}>
-        Goto Date
+    <div className="flex flex-col items-center justify-center w-full h-screen p-4">
+      <div className="w-full h-full max-w-screen-md flex items-center justify-center">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="w-full h-full"
+        />
+      </div>
+      <Button asChild className="mt-4">
+        <Link to={targetHref} reloadDocument>
+          Goto Date
+        </Link>
       </Button>
     </div>
   );

@@ -1,7 +1,7 @@
-import * as fs from "node:fs";
 import { createFileRoute } from "@tanstack/react-router";
-import path from "node:path";
 import dayjs from "dayjs";
+import * as fs from "node:fs";
+import path from "node:path";
 
 interface ParsedFilename {
   cameraId: string;
@@ -25,21 +25,37 @@ function parseFilename(filename: string): ParsedFilename {
   return { cameraId, id, timestamp, extension, filename };
 }
 
+async function detectionsLoader({
+  year,
+  month,
+  day,
+}: {
+  year: string;
+  month: string;
+  day: string;
+}) {
+  const pathToImages = path.join(
+    process.env.PERSON_FOLDER || "./",
+    year,
+    month,
+    day,
+  );
+
+  const files = await fs.promises.readdir(pathToImages);
+
+  const result = files
+    .filter((file) => file.endsWith(".jpg"))
+    .map((file) => parseFilename(file));
+
+  return result;
+}
+
 export const Route = createFileRoute("/$year/$month/$day/detections")({
-  component: RouteComponent,
   loader: async ({ params }) => {
     const { year, month, day } = params;
-
-    const files = await fs.promises.readdir(
-      path.join(process.env.PERSON_FOLDER || "./", year, month, day),
-    );
-
-    const result = files
-      .filter((file) => file.endsWith(".jpg"))
-      .map((file) => parseFilename(file));
-
-    return result;
+    return detectionsLoader({ year, month, day });
   },
+  component: RouteComponent,
 });
 
 function RouteComponent() {
@@ -47,7 +63,7 @@ function RouteComponent() {
   const { year, month, day } = Route.useParams();
 
   return (
-    <div className={`flex flex-wrap gap-2 p-2`}>
+    <div className="flex flex-wrap gap-2 p-2">
       {imagefiles.map((file) => (
         <div key={file.filename} className="relative w-1/1 h-1/1">
           <img
@@ -55,7 +71,7 @@ function RouteComponent() {
             alt={file.filename}
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-0 left-0 text-white p-2">
+          <div className="absolute bottom-0 left-0 text-white p-2 bg-black/50">
             {dayjs(file.timestamp).format("DD.MM, HH:mm:ss")}
           </div>
         </div>
