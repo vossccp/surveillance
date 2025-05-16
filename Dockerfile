@@ -5,7 +5,6 @@ WORKDIR /app
 # Install all dependencies (including devDeps) in a deterministic way
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
-# Copy source code and build
 COPY . .
 RUN npm run build
 
@@ -18,7 +17,7 @@ ENV NODE_ENV=production
 
 # Install only production dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production --legacy-peer-deps
 
 # Copy the built output from the builder
 COPY --from=builder /app/.output ./.output
