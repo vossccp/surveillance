@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install all dependencies (including devDeps) in a deterministic way
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 # Copy source code and build
 COPY . .
 RUN npm run build
