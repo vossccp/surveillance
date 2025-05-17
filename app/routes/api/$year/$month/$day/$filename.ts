@@ -4,16 +4,21 @@ import { createAPIFileRoute } from "@tanstack/react-start/api";
 
 export const APIRoute = createAPIFileRoute("/api/$year/$month/$day/$filename")({
   GET: async ({ params }) => {
-    console.log("I am here");
-
     const { filename, year, month, day } = params;
+
     const file = await fs.promises.readFile(
       path.join(process.env.PERSON_FOLDER || "./", year, month, day, filename),
     );
 
+    if (!file) {
+      return new Response("File not found", { status: 404 });
+    }
+
+    const extension = path.extname(filename);
+
     return new Response(file, {
       headers: {
-        "Content-Type": "image/jpeg",
+        "Content-Type": extension === ".jpg" ? "image/jpeg" : "video/mp4",
         "Content-Disposition": `inline; filename="${filename}"`,
       },
     });

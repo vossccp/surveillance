@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 import React from "react";
 
-interface ParsedFilename {
+interface SurveillanceEvent {
   cameraId: string;
   id: number;
   timestamp: Date;
@@ -13,7 +13,7 @@ interface ParsedFilename {
   mp4s: string[];
 }
 
-function parseFilename(filename: string): ParsedFilename {
+function parseImageFilename(filename: string): SurveillanceEvent {
   const match = filename.match(/^(.+?)_(\d{2})_(\d{14})\.(\w+)$/);
   if (!match) {
     throw new Error(`Filename "${filename}" does not match expected pattern`);
@@ -47,8 +47,8 @@ async function detectionsLoader({
     return [];
   }
 
-  const files: ParsedFilename[] = (await fs.promises.readdir(pathToImages))
-    .map((file) => parseFilename(file))
+  const events: SurveillanceEvent[] = (await fs.promises.readdir(pathToImages))
+    .map((file) => parseImageFilename(file))
     .sort((a, b) => {
       if (a.timestamp < b.timestamp) {
         return -1;
@@ -59,20 +59,20 @@ async function detectionsLoader({
       return 0;
     });
 
-  const result = files.filter((file) => file.extension === "jpg");
+  const result = events.filter((file) => file.extension === "jpg");
 
   for (var i = 0; i < result.length; i++) {
     const event = result[i];
 
     if (i === result.length - 1) {
-      event.mp4s = files
+      event.mp4s = events
         .filter((file) => file.extension === "mp4")
         .filter((file) => file.timestamp >= event.timestamp)
         .map((file) => file.filename);
     } else {
       const nextEvent = result[i + 1];
 
-      event.mp4s = files
+      event.mp4s = events
         .filter((file) => file.extension === "mp4")
         .filter(
           (file) =>
@@ -95,15 +95,15 @@ export const Route = createFileRoute("/$year/$month/$day/detections")({
 });
 
 function RouteComponent() {
-  const imagefiles = Route.useLoaderData();
+  const events = Route.useLoaderData();
   const { year, month, day } = Route.useParams();
 
   const [selectedEvent, setSelectedEvent] =
-    React.useState<ParsedFilename | null>(null);
+    React.useState<SurveillanceEvent | null>(null);
 
   return (
     <div className="flex flex-wrap gap-2 p-2">
-      {imagefiles.map((file) => {
+      {events.map((file) => {
         const imageUrl = `/api/${year}/${month}/${day}/${file.filename}`;
         return (
           <div key={file.filename} className="relative w-1/1 h-1/1">
