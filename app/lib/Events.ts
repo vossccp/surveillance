@@ -14,7 +14,7 @@ export interface EventDay {
   totalSizeMB?: number;
 }
 
-interface SurveillanceEvent {
+export interface SurveillanceEvent {
   cameraId: string;
   id: number;
   timestamp: Date;
@@ -155,4 +155,9 @@ export async function GetAll(): Promise<EventDay[]> {
   // Sort by date descending (most recent first)
   eventDayData.sort((a, b) => b.date.localeCompare(a.date));
   return eventDayData;
+}
+
+export async function GetEventsForDay(date: string): Promise<SurveillanceEvent[]> {
+  const [year, month, day] = date.split("-");
+  return await loadEvents({ year, month, day });
 }

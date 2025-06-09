@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as DetectionsDayImport } from './routes/detections/$day'
 import { Route as YearMonthDayDetectionsImport } from './routes/$year/$month/$day/detections'
 
 // Create/Update Routes
@@ -19,6 +20,12 @@ import { Route as YearMonthDayDetectionsImport } from './routes/$year/$month/$da
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DetectionsDayRoute = DetectionsDayImport.update({
+  id: '/detections/$day',
+  path: '/detections/$day',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +46,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/detections/$day': {
+      id: '/detections/$day'
+      path: '/detections/$day'
+      fullPath: '/detections/$day'
+      preLoaderRoute: typeof DetectionsDayImport
+      parentRoute: typeof rootRoute
+    }
     '/$year/$month/$day/detections': {
       id: '/$year/$month/$day/detections'
       path: '/$year/$month/$day/detections'
@@ -53,36 +67,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/detections/$day': typeof DetectionsDayRoute
   '/$year/$month/$day/detections': typeof YearMonthDayDetectionsRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/detections/$day': typeof DetectionsDayRoute
   '/$year/$month/$day/detections': typeof YearMonthDayDetectionsRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/detections/$day': typeof DetectionsDayRoute
   '/$year/$month/$day/detections': typeof YearMonthDayDetectionsRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$year/$month/$day/detections'
+  fullPaths: '/' | '/detections/$day' | '/$year/$month/$day/detections'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$year/$month/$day/detections'
-  id: '__root__' | '/' | '/$year/$month/$day/detections'
+  to: '/' | '/detections/$day' | '/$year/$month/$day/detections'
+  id: '__root__' | '/' | '/detections/$day' | '/$year/$month/$day/detections'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DetectionsDayRoute: typeof DetectionsDayRoute
   YearMonthDayDetectionsRoute: typeof YearMonthDayDetectionsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DetectionsDayRoute: DetectionsDayRoute,
   YearMonthDayDetectionsRoute: YearMonthDayDetectionsRoute,
 }
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/detections/$day",
         "/$year/$month/$day/detections"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/detections/$day": {
+      "filePath": "detections/$day.tsx"
     },
     "/$year/$month/$day/detections": {
       "filePath": "$year/$month/$day/detections.tsx"

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import dayjs from "dayjs";
@@ -83,9 +83,10 @@ function Home() {
     setEventDays((prev) => prev.filter((p) => p.date !== dStr));
   };
 
+  const navigate = useNavigate();
+
   const handleView = (dStr: string) => {
-    // Navigate to specific day view - placeholder for future implementation
-    console.log(`View events for ${dStr}`);
+    navigate({ to: `/detections/${dStr}`, reloadDocument: true });
   };
 
   return (
