@@ -95,8 +95,12 @@ function SurveillanceView({ events, date }: { events: SurveillanceEvent[]; date?
   const [selected, setSelected] = useState<SurveillanceEvent | null>(null)
   const { year, month, day } = useMemo(() => {
     if (!date) return { year: '', month: '', day: '' }
-    const d = dayjs(date)
-    return { year: d.format('YYYY'), month: d.format('MM'), day: d.format('DD') }
+    const d = dayjs(date).tz('Europe/Berlin')
+    return {
+      year: d.format('YYYY'),
+      month: d.format('MM'),
+      day: d.format('DD'),
+    }
   }, [date])
   return (
     <div className="flex flex-wrap gap-2">
@@ -154,12 +158,14 @@ function Home() {
   const [availableDates, setAvailableDates] = useState(data.availableDates)
   const availableSet = useMemo(() => new Set(availableDates), [availableDates])
   const [tab, setTab] = useState<'surveillance' | 'all'>('surveillance')
-  const [date, setDate] = useState<Date | undefined>(data.initialDate ? dayjs(data.initialDate).toDate() : undefined)
+  const [date, setDate] = useState<Date | undefined>(
+    data.initialDate ? dayjs.tz(data.initialDate, 'YYYY-MM-DD', 'Europe/Berlin').toDate() : undefined,
+  )
   const [events, setEvents] = useState<SurveillanceEvent[]>(data.events)
 
   useEffect(() => {
     if (!date) return
-    const key = dayjs(date).format('YYYY-MM-DD')
+    const key = dayjs(date).tz('Europe/Berlin').format('YYYY-MM-DD')
     if (!availableSet.has(key)) {
       setEvents([])
       return
@@ -170,7 +176,8 @@ function Home() {
       .then((ev) => setEvents(ev))
   }, [date, availableSet])
 
-  const disabledDays = (d: Date) => !availableSet.has(dayjs(d).format('YYYY-MM-DD'))
+  const disabledDays = (d: Date) =>
+    !availableSet.has(dayjs(d).tz('Europe/Berlin').format('YYYY-MM-DD'))
 
   const handleDelete = async (dStr: string) => {
     const [y, m, d] = dStr.split('-')
