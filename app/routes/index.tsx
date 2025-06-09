@@ -105,7 +105,7 @@ function SurveillanceView({ events, date }: { events: SurveillanceEvent[]; date?
   return (
     <div className="flex flex-wrap gap-2">
       {events.map((file) => {
-        const imageUrl = `/api/${year}/${month}/${day}/${file.filename}`
+        const imageUrl = `/api/files/${year}/${month}/${day}/${file.filename}`
         return (
           <div key={file.filename} className="relative w-40 h-40">
             <img
@@ -126,7 +126,12 @@ function SurveillanceView({ events, date }: { events: SurveillanceEvent[]; date?
             <button className="absolute top-2 right-2 text-white text-xl" onClick={() => setSelected(null)}>
               ✕
             </button>
-            <video src={`/api/${year}/${month}/${day}/${selected.mp4s[0]}`} controls autoPlay className="w-full h-auto" />
+            <video
+              src={`/api/files/${year}/${month}/${day}/${selected.mp4s[0]}`}
+              controls
+              autoPlay
+              className="w-full h-auto"
+            />
           </div>
         </div>
       )}
@@ -181,7 +186,7 @@ function Home() {
 
   const handleDelete = async (dStr: string) => {
     const [y, m, d] = dStr.split('-')
-    await fetch(`/api/${y}/${m}/${d}`, { method: 'DELETE' })
+    await fetch(`/api/files/${y}/${m}/${d}`, { method: 'DELETE' })
     setAvailableDates((prev) => prev.filter((p) => p !== dStr))
   }
 

@@ -104,7 +104,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-wrap gap-2 p-2">
       {events.map((file) => {
-        const imageUrl = `/api/${year}/${month}/${day}/${file.filename}`;
+        const imageUrl = `/api/files/${year}/${month}/${day}/${file.filename}`;
         return (
           <div key={file.filename} className="relative w-1/1 h-1/1">
             <img
@@ -130,7 +130,7 @@ function RouteComponent() {
               ✕
             </button>
             <video
-              src={`/api/${year}/${month}/${day}/${selectedEvent.mp4s[0]}`}
+              src={`/api/files/${year}/${month}/${day}/${selectedEvent.mp4s[0]}`}
               controls
               autoPlay
               className="w-full h-auto"
