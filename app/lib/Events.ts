@@ -25,7 +25,7 @@ export interface SurveillanceEvent {
   mp4Sizes?: number[];
 }
 
-function parseImageFilename(filename: string): SurveillanceEvent {
+export function parseImageFilename(filename: string): SurveillanceEvent {
   const match = filename.match(/^(.+?)_(\d{2})_(\d{14})\.(\w+)$/);
   if (!match) {
     throw new Error(`Filename "${filename}" does not match expected pattern`);
@@ -36,7 +36,7 @@ function parseImageFilename(filename: string): SurveillanceEvent {
   return { cameraId, id, timestamp, extension, filename, mp4s: [] };
 }
 
-async function loadEvents({
+export async function loadEvents({
   year,
   month,
   day,
