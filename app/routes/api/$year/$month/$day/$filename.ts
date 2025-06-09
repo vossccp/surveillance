@@ -6,19 +6,26 @@ export const APIRoute = createAPIFileRoute("/api/$year/$month/$day/$filename")({
   GET: async ({ params }) => {
     const { filename, year, month, day } = params;
 
-    const file = await fs.promises.readFile(
-      path.join(process.env.PERSON_FOLDER || "./", year, month, day, filename),
-    );
-
-    if (!file) {
-      return new Response("File not found", { status: 404 });
+    let file: Buffer;
+    try {
+      file = await fs.promises.readFile(
+        path.join(process.env.PERSON_FOLDER || "./", year, month, day, filename),
+      );
+    } catch (err: unknown) {
+      const error = err as NodeJS.ErrnoException;
+      if (error && error.code === "ENOENT") {
+        return new Response("File not found", { status: 404 });
+      }
+      throw err;
     }
 
-    const extension = path.extname(filename);
+    const extension = path.extname(filename).toLowerCase();
 
     return new Response(file, {
       headers: {
-        "Content-Type": extension === ".jpg" ? "image/jpeg" : "video/mp4",
+        "Content-Type": [".jpg", ".jpeg"].includes(extension)
+          ? "image/jpeg"
+          : "video/mp4",
         "Content-Disposition": `inline; filename="${filename}"`,
       },
     });
