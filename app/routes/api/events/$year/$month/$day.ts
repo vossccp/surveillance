@@ -15,6 +15,8 @@ interface SurveillanceEvent {
   extension: string
   filename: string
   mp4s: string[]
+  fileSize?: number
+  mp4Sizes?: number[]
 }
 
 function parseImageFilename(filename: string): SurveillanceEvent {
@@ -40,13 +42,36 @@ async function loadEvents({ year, month, day }: { year: string; month: string; d
   const result = events.filter((e) => e.extension === 'jpg')
   for (let i = 0; i < result.length; i++) {
     const event = result[i]
+    
+    // Get file size for the JPG event
+    const eventPath = path.join(dir, event.filename)
+    try {
+      const eventStats = await fs.promises.stat(eventPath)
+      event.fileSize = eventStats.size
+    } catch (error) {
+      event.fileSize = 0
+    }
+    
+    // Get associated MP4s and their sizes
+    let mp4Events: SurveillanceEvent[]
     if (i === result.length - 1) {
-      event.mp4s = events.filter((f) => f.extension === 'mp4' && f.timestamp >= event.timestamp).map((f) => f.filename)
+      mp4Events = events.filter((f) => f.extension === 'mp4' && f.timestamp >= event.timestamp)
     } else {
       const next = result[i + 1]
-      event.mp4s = events
-        .filter((f) => f.extension === 'mp4' && f.timestamp >= event.timestamp && f.timestamp <= next.timestamp)
-        .map((f) => f.filename)
+      mp4Events = events.filter((f) => f.extension === 'mp4' && f.timestamp >= event.timestamp && f.timestamp <= next.timestamp)
+    }
+    
+    event.mp4s = mp4Events.map((f) => f.filename)
+    event.mp4Sizes = []
+    
+    for (const mp4Event of mp4Events) {
+      const mp4Path = path.join(dir, mp4Event.filename)
+      try {
+        const mp4Stats = await fs.promises.stat(mp4Path)
+        event.mp4Sizes.push(mp4Stats.size)
+      } catch (error) {
+        event.mp4Sizes.push(0)
+      }
     }
   }
   return result
