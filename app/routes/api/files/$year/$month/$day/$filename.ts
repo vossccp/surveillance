@@ -2,7 +2,9 @@ import * as fs from "node:fs";
 import path from "node:path";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 
-export const APIRoute = createAPIFileRoute("/api/$year/$month/$day/$filename")({
+export const APIRoute = createAPIFileRoute(
+  "/api/files/$year/$month/$day/$filename",
+)({
   GET: async ({ params }) => {
     const { filename, year, month, day } = params;
 

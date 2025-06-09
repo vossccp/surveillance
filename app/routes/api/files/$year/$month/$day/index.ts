@@ -2,7 +2,7 @@ import { createAPIFileRoute } from '@tanstack/react-start/api'
 import * as fs from 'node:fs/promises'
 import path from 'node:path'
 
-export const APIRoute = createAPIFileRoute('/api/$year/$month/$day')({
+export const APIRoute = createAPIFileRoute('/api/files/$year/$month/$day')({
   DELETE: async ({ params }) => {
     const { year, month, day } = params
     const dir = path.join(process.env.PERSON_FOLDER || './', year, month, day)
