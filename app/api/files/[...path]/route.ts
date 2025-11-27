@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { promises as fs } from "fs"
 import path from "path"
 
-const PERSON_FOLDER = process.env.PERSON_FOLDER || "./surveillance"
+const PERSON_FOLDER = path.resolve(process.env.PERSON_FOLDER || "./surveillance")
+
+// Log for debugging
+console.log('[Files API] Using PERSON_FOLDER:', PERSON_FOLDER)
 
 interface RouteParams {
   params: Promise<{ path: string[] }>
@@ -20,9 +23,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   const [year, month, day, filename] = pathSegments
   const filePath = path.join(PERSON_FOLDER, year, month, day, filename)
+  
+  console.log('[Files API] Attempting to read file:', filePath)
 
   try {
     const file = await fs.readFile(filePath)
+    console.log('[Files API] File read successfully:', filename)
     
     // Determine content type
     const ext = path.extname(filename).toLowerCase()
@@ -43,8 +49,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     })
   } catch (error) {
+    console.error('[Files API] Error reading file:', filePath, error)
     return NextResponse.json(
-      { error: "File not found" },
+      { error: "File not found", path: filePath },
       { status: 404 }
     )
   }

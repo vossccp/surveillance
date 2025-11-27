@@ -32,7 +32,14 @@ export interface EventDay {
   lastEvent?: SurveillanceEvent
 }
 
-const PERSON_FOLDER = process.env.PERSON_FOLDER || './surveillance'
+// Resolve to absolute path to ensure consistency
+const PERSON_FOLDER = path.resolve(process.env.PERSON_FOLDER || './surveillance')
+
+// Log configuration on startup
+if (process.env.NODE_ENV !== 'test') {
+  console.log('[Events] Using PERSON_FOLDER:', PERSON_FOLDER)
+  console.log('[Events] Path exists:', require('fs').existsSync(PERSON_FOLDER))
+}
 const TZ = 'Europe/Berlin'
 
 export function parseFilename(filename: string): SurveillanceFile | null {
@@ -69,7 +76,9 @@ export async function loadEvents(date: string): Promise<SurveillanceEvent[]> {
   const dir = path.join(PERSON_FOLDER, year, month, day)
   
   try {
+    console.log('[Events] Loading events from:', dir)
     const files = await fs.readdir(dir)
+    console.log('[Events] Found files:', files.length)
     const parsedFiles: SurveillanceFile[] = []
     
     for (const file of files) {
@@ -121,7 +130,18 @@ export async function loadEvents(date: string): Promise<SurveillanceEvent[]> {
 
 export async function getEventDays(): Promise<EventDay[]> {
   try {
+    console.log('[Events] Scanning for event days in:', PERSON_FOLDER)
+    
+    // Check if directory exists
+    try {
+      await fs.access(PERSON_FOLDER)
+    } catch (error) {
+      console.error('[Events] Directory does not exist or is not accessible:', PERSON_FOLDER)
+      return []
+    }
+    
     const years = await fs.readdir(PERSON_FOLDER)
+    console.log('[Events] Found year directories:', years)
     const eventDays: EventDay[] = []
     
     for (const year of years) {
@@ -171,9 +191,11 @@ export async function getEventDays(): Promise<EventDay[]> {
     // Sort by date descending (newest first)
     eventDays.sort((a, b) => b.date.localeCompare(a.date))
     
+    console.log('[Events] Total event days found:', eventDays.length)
     return eventDays
   } catch (error) {
-    console.error('Error getting event days:', error)
+    console.error('[Events] Error getting event days:', error)
+    console.error('[Events] Stack trace:', error.stack)
     return []
   }
 }
