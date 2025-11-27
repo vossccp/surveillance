@@ -15,6 +15,9 @@ RUN npm ci
 
 COPY . .
 
+# Create public directory if it doesn't exist
+RUN mkdir -p public
+
 # Next.js collects completely anonymous telemetry data about general usage.
 ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -30,7 +33,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the built Next.js application
+# Copy public files (now guaranteed to exist)
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
