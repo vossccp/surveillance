@@ -43,8 +43,13 @@ if (process.env.NODE_ENV !== 'test') {
 const TZ = 'Europe/Berlin'
 
 export function parseFilename(filename: string): SurveillanceFile | null {
+  console.log('[Events] Parsing filename:', filename)
   const match = filename.match(/^(.+?)_(\d+)_(\d{14})\.(.+)$/)
-  if (!match) return null
+  if (!match) {
+    console.log('[Events] Filename does not match pattern:', filename)
+    return null
+  }
+  console.log('[Events] Filename matched pattern:', match)
   
   const [, cameraId, id, timestamp, extension] = match
   const year = timestamp.substring(0, 4)
@@ -81,20 +86,29 @@ export async function loadEvents(date: string): Promise<SurveillanceEvent[]> {
     console.log('[Events] Found files:', files.length)
     const parsedFiles: SurveillanceFile[] = []
     
+    console.log('[Events] Processing files:', files)
     for (const file of files) {
+      console.log('[Events] Processing file:', file)
       const parsed = parseFilename(file)
       if (parsed) {
+        console.log('[Events] File parsed successfully:', file, 'as', parsed)
         const fullPath = path.join(dir, file)
         const stats = await fs.stat(fullPath)
         parsed.fullPath = fullPath
         parsed.size = stats.size
         parsedFiles.push(parsed)
+      } else {
+        console.log('[Events] File skipped (no match):', file)
       }
     }
+    console.log('[Events] Total parsed files:', parsedFiles.length)
     
     // Separate JPG and MP4 files
     const jpgFiles = parsedFiles.filter(f => f.extension.toLowerCase() === 'jpg')
     const mp4Files = parsedFiles.filter(f => f.extension.toLowerCase() === 'mp4')
+    
+    console.log('[Events] JPG files found:', jpgFiles.length)
+    console.log('[Events] MP4 files found:', mp4Files.length)
     
     // Sort by timestamp
     jpgFiles.sort((a, b) => a.timestamp.localeCompare(b.timestamp))
@@ -123,7 +137,10 @@ export async function loadEvents(date: string): Promise<SurveillanceEvent[]> {
     
     return events
   } catch (error) {
-    console.error('Error loading events:', error)
+    console.error('[Events] Error loading events from:', dir, error)
+    if (error instanceof Error) {
+      console.error('[Events] Stack trace:', error.stack)
+    }
     return []
   }
 }
@@ -145,28 +162,66 @@ export async function getEventDays(): Promise<EventDay[]> {
     const eventDays: EventDay[] = []
     
     for (const year of years) {
+      console.log('[Events] Processing year:', year)
       const yearPath = path.join(PERSON_FOLDER, year)
-      const stats = await fs.stat(yearPath)
-      if (!stats.isDirectory()) continue
+      let stats
+      try {
+        stats = await fs.stat(yearPath)
+      } catch (error) {
+        console.log('[Events] Error accessing year path:', yearPath, error)
+        continue
+      }
+      
+      if (!stats.isDirectory()) {
+        console.log('[Events] Skipping non-directory year entry:', year)
+        continue
+      }
       
       const months = await fs.readdir(yearPath)
+      console.log('[Events] Found months in year', year, ':', months)
       
       for (const month of months) {
+        console.log('[Events] Processing month:', month)
         const monthPath = path.join(yearPath, month)
-        const monthStats = await fs.stat(monthPath)
-        if (!monthStats.isDirectory()) continue
+        let monthStats
+        try {
+          monthStats = await fs.stat(monthPath)
+        } catch (error) {
+          console.log('[Events] Error accessing month path:', monthPath, error)
+          continue
+        }
+        
+        if (!monthStats.isDirectory()) {
+          console.log('[Events] Skipping non-directory month entry:', month)
+          continue
+        }
         
         const days = await fs.readdir(monthPath)
+        console.log('[Events] Found days in month', month, ':', days)
         
         for (const day of days) {
+          console.log('[Events] Processing day:', day)
           const dayPath = path.join(monthPath, day)
-          const dayStats = await fs.stat(dayPath)
-          if (!dayStats.isDirectory()) continue
+          let dayStats
+          try {
+            dayStats = await fs.stat(dayPath)
+          } catch (error) {
+            console.log('[Events] Error accessing day path:', dayPath, error)
+            continue
+          }
+          
+          if (!dayStats.isDirectory()) {
+            console.log('[Events] Skipping non-directory day entry:', day)
+            continue
+          }
           
           const dateStr = `${year}-${month}-${day}`
+          console.log('[Events] Loading events for date:', dateStr)
           const events = await loadEvents(dateStr)
+          console.log('[Events] Loaded', events.length, 'events for', dateStr)
           
           if (events.length > 0) {
+            console.log('[Events] Adding event day for:', dateStr, 'with', events.length, 'events')
             const totalSize = events.reduce((sum, event) => {
               const eventSize = event.size || 0
               const mp4Size = event.mp4Files.reduce((s, f) => s + (f.size || 0), 0)
@@ -183,6 +238,9 @@ export async function getEventDays(): Promise<EventDay[]> {
               firstEvent: events[0],
               lastEvent: events[events.length - 1]
             })
+            console.log('[Events] Event day added successfully for:', dateStr)
+          } else {
+            console.log('[Events] No events found for date:', dateStr, '- skipping')
           }
         }
       }
