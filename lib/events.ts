@@ -195,7 +195,9 @@ export async function getEventDays(): Promise<EventDay[]> {
     return eventDays
   } catch (error) {
     console.error('[Events] Error getting event days:', error)
-    console.error('[Events] Stack trace:', error.stack)
+    if (error instanceof Error) {
+      console.error('[Events] Stack trace:', error.stack)
+    }
     return []
   }
 }
