@@ -1,40 +1,36 @@
-import { getEventDays, type EventDay } from "@/lib/events"
-import { Header } from "@/components/header"
-import { EmptyState } from "@/components/empty-state"
-import { CalendarNavigation } from "@/components/calendar-navigation"
+import { getEventDays, type EventDay } from "@/lib/events";
+import { Header } from "@/components/header";
+import { EmptyState } from "@/components/empty-state";
+import { CalendarNavigation } from "@/components/calendar-navigation";
 
 export default async function HomePage() {
-  console.log('[HomePage] Rendering home page')
-  
-  let eventDays: EventDay[] = []
-  let error: string | null = null
-  
+  console.log("[HomePage] Rendering home page");
+
+  let eventDays: EventDay[] = [];
+  let error: string | null = null;
+
   try {
-    console.log('[HomePage] Calling getEventDays...')
-    eventDays = await getEventDays()
-    console.log('[HomePage] getEventDays returned:', eventDays.length, 'days')
+    console.log("[HomePage] Calling getEventDays...");
+    eventDays = await getEventDays();
+    console.log("[HomePage] getEventDays returned:", eventDays.length, "days");
   } catch (err: any) {
-    console.error('[HomePage] Error calling getEventDays:', err)
-    error = err.message
+    console.error("[HomePage] Error calling getEventDays:", err);
+    error = err.message;
   }
 
   return (
     <div className="min-h-screen">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 fade-in">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
-            Surveillance Events
+            Surveillance Events!!!!
           </h1>
           <p className="text-muted-foreground mt-2">
             {eventDays.length} days with recorded events
           </p>
-          {error && (
-            <p className="text-red-400 mt-2">
-              Error: {error}
-            </p>
-          )}
+          {error && <p className="text-red-400 mt-2">Error: {error}</p>}
         </div>
 
         {eventDays.length === 0 ? (
@@ -44,5 +40,6 @@ export default async function HomePage() {
         )}
       </main>
     </div>
-  )
+  );
 }
+
