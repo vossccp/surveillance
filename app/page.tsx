@@ -4,7 +4,19 @@ import { EmptyState } from "@/components/empty-state"
 import { CalendarNavigation } from "@/components/calendar-navigation"
 
 export default async function HomePage() {
-  const eventDays = await getEventDays()
+  console.log('[HomePage] Rendering home page')
+  
+  let eventDays = []
+  let error = null
+  
+  try {
+    console.log('[HomePage] Calling getEventDays...')
+    eventDays = await getEventDays()
+    console.log('[HomePage] getEventDays returned:', eventDays.length, 'days')
+  } catch (err: any) {
+    console.error('[HomePage] Error calling getEventDays:', err)
+    error = err.message
+  }
 
   return (
     <div className="min-h-screen">
@@ -18,6 +30,11 @@ export default async function HomePage() {
           <p className="text-muted-foreground mt-2">
             {eventDays.length} days with recorded events
           </p>
+          {error && (
+            <p className="text-red-400 mt-2">
+              Error: {error}
+            </p>
+          )}
         </div>
 
         {eventDays.length === 0 ? (

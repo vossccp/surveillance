@@ -147,13 +147,20 @@ export async function loadEvents(date: string): Promise<SurveillanceEvent[]> {
 
 export async function getEventDays(): Promise<EventDay[]> {
   try {
-    console.log('[Events] Scanning for event days in:', PERSON_FOLDER)
+    console.log('[Events] getEventDays called')
+    console.log('[Events] PERSON_FOLDER env:', process.env.PERSON_FOLDER)
+    console.log('[Events] Resolved PERSON_FOLDER:', PERSON_FOLDER)
+    console.log('[Events] Current working directory:', process.cwd())
+    console.log('[Events] NODE_ENV:', process.env.NODE_ENV)
     
     // Check if directory exists
     try {
       await fs.access(PERSON_FOLDER)
+      console.log('[Events] Directory exists and is accessible:', PERSON_FOLDER)
     } catch (error) {
+      console.error('[Events] Directory access error:', error)
       console.error('[Events] Directory does not exist or is not accessible:', PERSON_FOLDER)
+      console.error('[Events] Error details:', JSON.stringify(error, null, 2))
       return []
     }
     
