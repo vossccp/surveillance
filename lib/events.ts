@@ -35,10 +35,15 @@ export interface EventDay {
 // Resolve to absolute path to ensure consistency
 const PERSON_FOLDER = path.resolve(process.env.PERSON_FOLDER || './surveillance')
 
-// Log configuration on startup
+// Log configuration on startup - using console.error for better K8s visibility
+console.error('[Events Module] Loading events.ts module')
+console.error('[Events Module] PERSON_FOLDER env var:', process.env.PERSON_FOLDER)
+console.error('[Events Module] Resolved PERSON_FOLDER:', PERSON_FOLDER)
+console.error('[Events Module] Current directory:', process.cwd())
+console.error('[Events Module] __dirname:', __dirname)
+
 if (process.env.NODE_ENV !== 'test') {
-  console.log('[Events] Using PERSON_FOLDER:', PERSON_FOLDER)
-  console.log('[Events] Path exists:', require('fs').existsSync(PERSON_FOLDER))
+  console.error('[Events Module] Path exists check:', require('fs').existsSync(PERSON_FOLDER))
 }
 const TZ = 'Europe/Berlin'
 
@@ -146,21 +151,25 @@ export async function loadEvents(date: string): Promise<SurveillanceEvent[]> {
 }
 
 export async function getEventDays(): Promise<EventDay[]> {
+  console.error('[getEventDays] Function called at:', new Date().toISOString())
+  console.error('[getEventDays] Stack trace:', new Error().stack)
+  
   try {
-    console.log('[Events] getEventDays called')
-    console.log('[Events] PERSON_FOLDER env:', process.env.PERSON_FOLDER)
-    console.log('[Events] Resolved PERSON_FOLDER:', PERSON_FOLDER)
-    console.log('[Events] Current working directory:', process.cwd())
-    console.log('[Events] NODE_ENV:', process.env.NODE_ENV)
+    console.error('[getEventDays] PERSON_FOLDER env:', process.env.PERSON_FOLDER)
+    console.error('[getEventDays] Resolved PERSON_FOLDER:', PERSON_FOLDER)
+    console.error('[getEventDays] Current working directory:', process.cwd())
+    console.error('[getEventDays] NODE_ENV:', process.env.NODE_ENV)
     
     // Check if directory exists
     try {
+      console.error('[getEventDays] Checking directory access...')
       await fs.access(PERSON_FOLDER)
-      console.log('[Events] Directory exists and is accessible:', PERSON_FOLDER)
-    } catch (error) {
-      console.error('[Events] Directory access error:', error)
-      console.error('[Events] Directory does not exist or is not accessible:', PERSON_FOLDER)
-      console.error('[Events] Error details:', JSON.stringify(error, null, 2))
+      console.error('[getEventDays] Directory IS accessible:', PERSON_FOLDER)
+    } catch (error: any) {
+      console.error('[getEventDays] Directory NOT accessible:', PERSON_FOLDER)
+      console.error('[getEventDays] Access error:', error.message)
+      console.error('[getEventDays] Access error code:', error.code)
+      console.error('[getEventDays] Access error stack:', error.stack)
       return []
     }
     
