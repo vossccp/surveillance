@@ -1,4 +1,4 @@
-import { getEventDays } from "@/lib/events"
+import { getEventDays, type EventDay } from "@/lib/events"
 import { Header } from "@/components/header"
 import { EmptyState } from "@/components/empty-state"
 import { CalendarNavigation } from "@/components/calendar-navigation"
@@ -6,8 +6,8 @@ import { CalendarNavigation } from "@/components/calendar-navigation"
 export default async function HomePage() {
   console.log('[HomePage] Rendering home page')
   
-  let eventDays = []
-  let error = null
+  let eventDays: EventDay[] = []
+  let error: string | null = null
   
   try {
     console.log('[HomePage] Calling getEventDays...')
