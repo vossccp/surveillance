@@ -1,7 +1,7 @@
 import { getEventDays } from "@/lib/events"
-import { EventDayCard } from "@/components/event-day-card"
 import { Header } from "@/components/header"
 import { EmptyState } from "@/components/empty-state"
+import { CalendarNavigation } from "@/components/calendar-navigation"
 
 export default async function HomePage() {
   const eventDays = await getEventDays()
@@ -23,17 +23,7 @@ export default async function HomePage() {
         {eventDays.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {eventDays.map((day, index) => (
-              <div
-                key={day.date}
-                className="fade-up"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <EventDayCard eventDay={day} />
-              </div>
-            ))}
-          </div>
+          <CalendarNavigation eventDays={eventDays} />
         )}
       </main>
     </div>
