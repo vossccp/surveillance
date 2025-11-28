@@ -3,8 +3,18 @@ import { Header } from "@/components/header";
 import { EmptyState } from "@/components/empty-state";
 import { CalendarNavigation } from "@/components/calendar-navigation";
 
+// Force dynamic rendering - prevent static generation
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function HomePage() {
-  console.log("[HomePage] Starting HomePage render");
+  // Try multiple logging methods
+  const timestamp = new Date().toISOString();
+  console.log("[HomePage] Starting HomePage render at:", timestamp);
+  console.error("[HomePage ERROR] Starting HomePage render at:", timestamp);
+  process.stdout.write(`[STDOUT] HomePage render at ${timestamp}\n`);
+  process.stderr.write(`[STDERR] HomePage render at ${timestamp}\n`);
+  
   console.log("[HomePage] Environment:", process.env.NODE_ENV);
   console.log("[HomePage] PERSON_FOLDER env:", process.env.PERSON_FOLDER);
 
@@ -34,6 +44,16 @@ export default async function HomePage() {
             {eventDays.length} days with recorded events
           </p>
           {error && <p className="text-red-400 mt-2">Error: {error}</p>}
+          
+          {/* Debug info visible in UI */}
+          <div className="mt-4 p-4 bg-gray-800 rounded text-xs text-gray-300">
+            <p>Render time: {new Date().toISOString()}</p>
+            <p>NODE_ENV: {process.env.NODE_ENV}</p>
+            <p>PERSON_FOLDER: {process.env.PERSON_FOLDER || 'undefined'}</p>
+            <p>Event count: {eventDays.length}</p>
+            <p>Error: {error || 'none'}</p>
+            <p>CWD: {process.cwd()}</p>
+          </div>
         </div>
 
         {eventDays.length === 0 ? (
